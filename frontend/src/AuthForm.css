@@ -1,0 +1,125 @@
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f7f6;
+}
+
+.auth-form {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.auth-form h2 {
+  color: #2c5b4e;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* To include padding and border in the element's total width and height */
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #1d7a62;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form button:hover {
+  background-color: #155e4c;
+}
+
+.auth-form .form-footer {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.auth-form .form-footer a {
+  color: #1d7a62;
+  text-decoration: none;
+}
+
+.auth-form .form-footer a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: .25em;
+}
+
+.divider:not(:empty)::after {
+    margin-left: .25em;
+}
+
+.social-signin {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.social-btn {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.google-btn {
+    background-color: #f0f0f0; /* Light gray */
+    color: #333; /* Dark text */
+    border: 1px solid #ccc;
+}
+
+.google-btn:active {
+    background-color: #e0e0e0; /* Darker gray on click */
+}
+
+.apple-btn {
+    background-color: #f0f0f0; /* Light gray */
+    color: #333; /* Dark text */
+    border: 1px solid #ccc;
+}
+
+.apple-btn:active {
+    background-color: #e0e0e0; /* Darker gray on click */
+}
