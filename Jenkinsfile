@@ -3,26 +3,27 @@ pipeline {
     
     environment {
         COMPOSE_PROJECT_NAME = 'biolume'
-        DOCKER_BUILDKIT = '1'
     }
     
     stages {
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
-                checkout scm
+                sh '''
+                    git clone https://github.com/tharukadissanayaka/BioLume_HealthApplication.git . || git pull origin main
+                '''
             }
         }
         
         stage('Environment Check') {
             steps {
                 echo 'Checking environment...'
-                bat '''
-                    echo Checking Docker in WSL...
-                    wsl -e sh -lc "docker --version"
-                    wsl -e sh -lc "docker compose version"
-                    wsl -e sh -lc "docker info > /dev/null" || (echo WSL Docker daemon not reachable; exit /b 1)
-                    systeminfo | findstr /C:"OS Name"
+                sh '''
+                    echo "Checking Docker in WSL..."
+                    docker --version
+                    docker compose version
+                    docker info > /dev/null || (echo "Docker daemon not reachable"; exit 1)
+                    uname -a
                 '''
             }
         }
@@ -30,8 +31,11 @@ pipeline {
         stage('Stop Existing Containers') {
             steps {
                 echo 'Stopping any existing containers...'
-                bat '''
-                    wsl -e sh -lc "docker compose down" || exit /b 0
+                sh '''
+                    docker compose down || exit 0
+                    # Also remove any stray containers from previous runs
+                    docker ps -a --filter "name=biolume" --format="{{.ID}}" | xargs -r docker rm -f || exit 0
+                    docker ps -a --filter "name=devops" --format="{{.ID}}" | xargs -r docker rm -f || exit 0
                 '''
             }
         }
@@ -39,8 +43,8 @@ pipeline {
         stage('Clean Old Images') {
             steps {
                 echo 'Cleaning old images...'
-                bat '''
-                    wsl -e sh -lc "docker system prune -f" || exit /b 0
+                sh '''
+                    docker system prune -f || exit 0
                 '''
             }
         }
@@ -48,8 +52,8 @@ pipeline {
         stage('Build Images') {
             steps {
                 echo 'Building Docker images...'
-                bat '''
-                    wsl -e sh -lc "docker compose build --no-cache"
+                sh '''
+                    docker compose build --no-cache
                 '''
             }
         }
@@ -57,15 +61,15 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
-                bat '''
-                    REM Backend tests (if available)
-                    echo Backend tests would run here
+                sh '''
+                    # Backend tests (if available)
+                    echo "Backend tests would run here"
                     
-                    REM Frontend lint check
-                    echo Frontend lint check would run here
+                    # Frontend lint check
+                    echo "Frontend lint check would run here"
                     
-                    REM For now, we skip as no tests are configured
-                    echo Tests: PASSED (placeholder)
+                    # For now, we skip as no tests are configured
+                    echo "Tests: PASSED (placeholder)"
                 '''
             }
         }
@@ -73,8 +77,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                bat '''
-                    wsl -e sh -lc "docker compose up -d"
+                sh '''
+                    docker compose up -d
                 '''
             }
         }
@@ -82,24 +86,24 @@ pipeline {
         stage('Health Check') {
             steps {
                 echo 'Performing health checks...'
-                bat '''
-                    timeout /t 10 /nobreak
+                sh '''
+                    sleep 10
                     
-                    REM Check if containers are running
-                    wsl -e sh -lc "docker compose ps"
+                    # Check if containers are running
+                    docker compose ps
                     
-                    REM Check backend health (local)
-                    curl -f http://localhost:3000 >nul 2>&1 || echo Backend not responding yet on localhost
+                    # Check backend health (local)
+                    curl -f http://localhost:3000 > /dev/null 2>&1 || echo "Backend not responding yet on localhost"
                     
-                    REM Check frontend health (local)
-                    curl -f http://localhost:5173 >nul 2>&1 || echo Frontend not responding yet on localhost
+                    # Check frontend health (local)
+                    curl -f http://localhost:5173 > /dev/null 2>&1 || echo "Frontend not responding yet on localhost"
                     
-                    REM Check AWS public access
-                    curl -f http://98.93.42.249:5173 >nul 2>&1 || echo Frontend not accessible on AWS IP yet
-                    curl -f http://98.93.42.249:3000 >nul 2>&1 || echo Backend not accessible on AWS IP yet
+                    # Check AWS public access
+                    curl -f http://98.93.42.249:5173 > /dev/null 2>&1 || echo "Frontend not accessible on AWS IP yet"
+                    curl -f http://98.93.42.249:3000 > /dev/null 2>&1 || echo "Backend not accessible on AWS IP yet"
                     
-                    echo Deployment completed!
-                    echo Application accessible at: http://98.93.42.249:5173
+                    echo "Deployment completed!"
+                    echo "Application accessible at: http://98.93.42.249:5173"
                 '''
             }
         }
@@ -109,13 +113,13 @@ pipeline {
         success {
             echo 'Pipeline executed successfully!'
             echo 'Application deployed at: http://98.93.42.249:5173'
-            bat 'wsl -e sh -lc "docker compose ps"'
+            sh 'docker compose ps'
         }
         failure {
             echo 'Pipeline failed!'
-            bat '''
-                wsl -e sh -lc "docker compose logs" || exit /b 0
-                wsl -e sh -lc "docker compose down" || exit /b 0
+            sh '''
+                docker compose logs || exit 0
+                docker compose down || exit 0
             '''
         }
         always {
