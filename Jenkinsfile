@@ -4,7 +4,7 @@ pipeline {
     environment {
         COMPOSE_PROJECT_NAME = 'biolume'
         DOCKER_BUILDKIT = '1'
-        DOCKER_HOST = 'npipe:////./pipe/docker_wsl'
+        DOCKER_HOST = 'tcp://127.0.0.1:2375'
     }
     
     stages {
@@ -20,8 +20,8 @@ pipeline {
                 echo 'Checking environment...'
                 bat '''
                     echo Checking Docker in WSL...
-                    wsl docker --version
-                    wsl docker compose version
+                    docker --version
+                    docker compose version
                     systeminfo | findstr /C:"OS Name"
                 '''
             }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 bat '''
-                    wsl docker compose down || exit /b 0
+                    docker compose down || exit /b 0
                 '''
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 echo 'Cleaning old images...'
                 bat '''
-                    wsl docker system prune -f || exit /b 0
+                    docker system prune -f || exit /b 0
                 '''
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo 'Building Docker images...'
                 bat '''
-                    wsl docker compose build --no-cache
+                    docker compose build --no-cache
                 '''
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo 'Deploying application...'
                 bat '''
-                    wsl docker compose up -d
+                    docker compose up -d
                 '''
             }
         }
@@ -86,7 +86,7 @@ pipeline {
                     timeout /t 10 /nobreak
                     
                     REM Check if containers are running
-                    wsl docker compose ps
+                    docker compose ps
                     
                     REM Check backend health (local)
                     curl -f http://localhost:3000 >nul 2>&1 || echo Backend not responding yet on localhost
@@ -109,13 +109,13 @@ pipeline {
         success {
             echo 'Pipeline executed successfully!'
             echo 'Application deployed at: http://98.93.42.249:5173'
-            bat 'wsl docker compose ps'
+            bat 'docker compose ps'
         }
         failure {
             echo 'Pipeline failed!'
             bat '''
-                wsl docker compose logs || exit /b 0
-                wsl docker compose down || exit /b 0
+                docker compose logs || exit /b 0
+                docker compose down || exit /b 0
             '''
         }
         always {
