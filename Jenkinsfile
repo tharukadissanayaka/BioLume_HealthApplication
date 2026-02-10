@@ -4,7 +4,6 @@ pipeline {
     environment {
         COMPOSE_PROJECT_NAME = 'biolume'
         DOCKER_BUILDKIT = '1'
-        DOCKER_HOST = 'tcp://127.0.0.1:2375'
     }
     
     stages {
@@ -20,8 +19,9 @@ pipeline {
                 echo 'Checking environment...'
                 bat '''
                     echo Checking Docker in WSL...
-                    docker --version
-                    docker compose version
+                    wsl -e sh -lc "docker --version"
+                    wsl -e sh -lc "docker compose version"
+                    wsl -e sh -lc "docker info > /dev/null" || (echo WSL Docker daemon not reachable; exit /b 1)
                     systeminfo | findstr /C:"OS Name"
                 '''
             }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 echo 'Stopping any existing containers...'
                 bat '''
-                    docker compose down || exit /b 0
+                    wsl -e sh -lc "docker compose down" || exit /b 0
                 '''
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 echo 'Cleaning old images...'
                 bat '''
-                    docker system prune -f || exit /b 0
+                    wsl -e sh -lc "docker system prune -f" || exit /b 0
                 '''
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo 'Building Docker images...'
                 bat '''
-                    docker compose build --no-cache
+                    wsl -e sh -lc "docker compose build --no-cache"
                 '''
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo 'Deploying application...'
                 bat '''
-                    docker compose up -d
+                    wsl -e sh -lc "docker compose up -d"
                 '''
             }
         }
@@ -86,7 +86,7 @@ pipeline {
                     timeout /t 10 /nobreak
                     
                     REM Check if containers are running
-                    docker compose ps
+                    wsl -e sh -lc "docker compose ps"
                     
                     REM Check backend health (local)
                     curl -f http://localhost:3000 >nul 2>&1 || echo Backend not responding yet on localhost
@@ -109,13 +109,13 @@ pipeline {
         success {
             echo 'Pipeline executed successfully!'
             echo 'Application deployed at: http://98.93.42.249:5173'
-            bat 'docker compose ps'
+            bat 'wsl -e sh -lc "docker compose ps"'
         }
         failure {
             echo 'Pipeline failed!'
             bat '''
-                docker compose logs || exit /b 0
-                docker compose down || exit /b 0
+                wsl -e sh -lc "docker compose logs" || exit /b 0
+                wsl -e sh -lc "docker compose down" || exit /b 0
             '''
         }
         always {
