@@ -7,3 +7,13 @@ export const sleepData = [
   { date: '2023-05-06', duration: 8.2, quality: 90, bedtime: '22:15', wakeup: '06:30' },
   { date: '2023-05-07', duration: 7.8, quality: 88, bedtime: '22:30', wakeup: '06:15' },
 ];
+
+export const hydrationData = [
+  { date: '2023-05-01', amount: 1.8 },
+  { date: '2023-05-02', amount: 2.0 },
+  { date: '2023-05-03', amount: 2.3 },
+  { date: '2023-05-04', amount: 1.9 },
+  { date: '2023-05-05', amount: 2.5 },
+  { date: '2023-05-06', amount: 2.2 },
+  { date: '2023-05-07', amount: 2.4 },
+];
