@@ -1,49 +1,231 @@
-.dashboard {
-  padding: 20px;
-}
-
-.score-card {
-  background-color: #00a896;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.score-card h2 {
-  margin: 0;
-  font-size: 3em;
-}
-
-.weekly-score {
-  background-color: #00a896;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.metrics {
+.dashboard-container {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.metric {
-  background-color: #f4f4f4;
-  padding: 20px;
-  border-radius: 10px;
-  width: 23%;
-  text-align: center;
-}
-
-.tips ul {
-  list-style: none;
+  flex-direction: column;
+  gap: 24px;
   padding: 0;
 }
 
-.tips li {
-  background-color: #f4f4f4;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 10px;
+.dashboard-grid-top {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
 }
+
+@media (max-width: 768px) {
+  .dashboard-grid-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.health-score-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.health-score-card {
+  background: linear-gradient(135deg, #00a896 0%, #008a7a 100%);
+  padding: 32px 24px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 168, 150, 0.2);
+  color: white;
+}
+
+.score-label {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.score-value {
+  margin: 0;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.score-change {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.weekly-chart-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.weekly-chart-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.chart-placeholder {
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b7280;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-placeholder p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.metrics-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 8px 0;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.metric-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.metric-unit {
+  margin: 4px 0 12px 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00a896 0%, #00d4b4 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.tips-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-top: 8px;
+}
+
+.tips-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.tip-number {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: #00a896;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.tip-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+  padding-top: 2px;
+}
+
