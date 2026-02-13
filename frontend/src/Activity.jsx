@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { activityData } from '../utils/mockData';
+import { activityData } from './utils/mockData';
 import './Activity.css';
 
 const ActivityTracker = () => {

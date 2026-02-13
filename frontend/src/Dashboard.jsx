@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard.css';
-import { healthScoreData, metricData, weeklyScoreData } from '../utils/mockData';
+import { healthScoreData, metricData, weeklyScoreData } from './utils/mockData';
 
 const Dashboard = () => {
   return (
