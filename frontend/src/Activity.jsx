@@ -1,4 +1,14 @@
 import React, { useState } from 'react';
+import { SunIcon, SmartphoneIcon, PlusIcon } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import { activityData } from '../utils/mockData';
 import './Activity.css';
 
@@ -14,7 +24,6 @@ const ActivityTracker = () => {
     setDuration(30);
   };
 
-  // Format data for the charts
   const sunlightChartData = activityData.sunlight.map((item) => ({
     date: item.date.split('-')[2],
     duration: item.duration,
@@ -26,14 +35,15 @@ const ActivityTracker = () => {
   }));
 
   return (
-    <div className="activity-container">
+    <div className="activity-tracker">
       <div className="activity-header">
         <h2>Activity Tracker</h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="log-activity-btn"
         >
-          + Log Activity
+          <PlusIcon className="btn-icon" />
+          Log Activity
         </button>
       </div>
 
@@ -49,14 +59,16 @@ const ActivityTracker = () => {
                   onClick={() => setActivityType('sunlight')}
                   className={`type-btn ${activityType === 'sunlight' ? 'active-sunlight' : ''}`}
                 >
-                  ☀️ Sunlight Exposure
+                  <SunIcon className="type-icon" />
+                  Sunlight Exposure
                 </button>
                 <button
                   type="button"
                   onClick={() => setActivityType('screenTime')}
                   className={`type-btn ${activityType === 'screenTime' ? 'active-screen' : ''}`}
                 >
-                  📱 Screen Time
+                  <SmartphoneIcon className="type-icon" />
+                  Screen Time
                 </button>
               </div>
             </div>
@@ -74,7 +86,7 @@ const ActivityTracker = () => {
                 max={activityType === 'sunlight' ? 120 : 480}
                 step={activityType === 'sunlight' ? 5 : 30}
                 value={duration}
-                onChange={(e) => setDuration(parseInt(e.target.value))}
+                onChange={(e) => setDuration(parseInt(e.target.value, 10))}
                 className="range-input"
               />
             </div>
@@ -98,14 +110,51 @@ const ActivityTracker = () => {
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-header">
-            <div className="metric-icon sunlight-icon">☀️</div>
+            <div className="metric-icon sunlight-icon">
+              <SunIcon />
+            </div>
             <h3>Sunlight Exposure</h3>
           </div>
-          <div className="chart-placeholder">
-            <p>Chart: Sunlight Exposure Trend</p>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={sunlightChartData}
+                margin={{
+                  top: 5,
+                  right: 5,
+                  left: 0,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" />
+                <YAxis domain={[0, 60]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '0.5rem',
+                  }}
+                  formatter={(value) => [`${value} min`, 'Duration']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="duration"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={{
+                    fill: '#f59e0b',
+                    r: 4,
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
           <div className="metric-stats">
-            <div className="stat">
+            <div className="stat sunlight-stat">
               <p className="stat-label">Daily Average</p>
               <p className="stat-value">
                 {Math.round(
@@ -117,11 +166,11 @@ const ActivityTracker = () => {
                 min
               </p>
             </div>
-            <div className="stat">
+            <div className="stat sunlight-stat">
               <p className="stat-label">Target</p>
               <p className="stat-value">30 min</p>
             </div>
-            <div className="stat">
+            <div className="stat sunlight-stat">
               <p className="stat-label">Best Day</p>
               <p className="stat-value">45 min</p>
             </div>
@@ -130,14 +179,51 @@ const ActivityTracker = () => {
 
         <div className="metric-card">
           <div className="metric-header">
-            <div className="metric-icon screen-icon">📱</div>
+            <div className="metric-icon screen-icon">
+              <SmartphoneIcon />
+            </div>
             <h3>Screen Time</h3>
           </div>
-          <div className="chart-placeholder">
-            <p>Chart: Screen Time Trend</p>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={screenTimeChartData}
+                margin={{
+                  top: 5,
+                  right: 5,
+                  left: 0,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" />
+                <YAxis domain={[0, 6]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '0.5rem',
+                  }}
+                  formatter={(value) => [`${value} hrs`, 'Duration']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="duration"
+                  stroke="#6b7280"
+                  strokeWidth={2}
+                  dot={{
+                    fill: '#6b7280',
+                    r: 4,
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
           <div className="metric-stats">
-            <div className="stat">
+            <div className="stat screen-stat">
               <p className="stat-label">Daily Average</p>
               <p className="stat-value">
                 {(
@@ -149,11 +235,11 @@ const ActivityTracker = () => {
                 hrs
               </p>
             </div>
-            <div className="stat">
+            <div className="stat screen-stat">
               <p className="stat-label">Target</p>
               <p className="stat-value">≤ 2 hrs</p>
             </div>
-            <div className="stat">
+            <div className="stat screen-stat">
               <p className="stat-label">Best Day</p>
               <p className="stat-value">2.1 hrs</p>
             </div>
@@ -165,21 +251,51 @@ const ActivityTracker = () => {
         <h3>Activity Benefits</h3>
         <div className="benefits-grid">
           <div className="benefit-card sunlight-benefit">
-            <h4>☀️ Sunlight Benefits</h4>
+            <h4>
+              <SunIcon className="benefit-icon" />
+              Sunlight Benefits
+            </h4>
             <ul>
-              <li>✓ Boosts vitamin D production</li>
-              <li>✓ Improves mood and reduces depression</li>
-              <li>✓ Regulates circadian rhythm for better sleep</li>
-              <li>✓ Strengthens immune system function</li>
+              <li>
+                <span className="check-circle sunlight-check">✓</span>
+                <span>Boosts vitamin D production</span>
+              </li>
+              <li>
+                <span className="check-circle sunlight-check">✓</span>
+                <span>Improves mood and reduces depression</span>
+              </li>
+              <li>
+                <span className="check-circle sunlight-check">✓</span>
+                <span>Regulates circadian rhythm for better sleep</span>
+              </li>
+              <li>
+                <span className="check-circle sunlight-check">✓</span>
+                <span>Strengthens immune system function</span>
+              </li>
             </ul>
           </div>
           <div className="benefit-card screen-benefit">
-            <h4>📱 Reducing Screen Time Benefits</h4>
+            <h4>
+              <SmartphoneIcon className="benefit-icon" />
+              Reducing Screen Time Benefits
+            </h4>
             <ul>
-              <li>✓ Decreases eye strain and headaches</li>
-              <li>✓ Improves sleep quality</li>
-              <li>✓ Reduces anxiety and stress</li>
-              <li>✓ Increases productivity and focus</li>
+              <li>
+                <span className="check-circle screen-check">✓</span>
+                <span>Decreases eye strain and headaches</span>
+              </li>
+              <li>
+                <span className="check-circle screen-check">✓</span>
+                <span>Improves sleep quality</span>
+              </li>
+              <li>
+                <span className="check-circle screen-check">✓</span>
+                <span>Reduces anxiety and stress</span>
+              </li>
+              <li>
+                <span className="check-circle screen-check">✓</span>
+                <span>Increases productivity and focus</span>
+              </li>
             </ul>
           </div>
         </div>
