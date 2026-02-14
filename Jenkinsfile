@@ -87,25 +87,7 @@ pipeline {
                         scp -o StrictHostKeyChecking=no compose.prod.yml ${REMOTE_USER}@${REMOTE_SERVER}:/home/${REMOTE_USER}/biolume/
                         
                         # Deploy on remote server
-                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_SERVER} << 'EOF'
-                            cd /home/ubuntu/biolume
-                            
-                            # Login to Docker Hub
-                            echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                            
-                            # Pull latest images
-                            docker pull ${FRONTEND_IMAGE}:latest
-                            docker pull ${BACKEND_IMAGE}:latest
-                            
-                            # Stop existing containers
-                            docker compose -f compose.prod.yml down || true
-                            
-                            # Start new containers
-                            docker compose -f compose.prod.yml up -d
-                            
-                            # Clean up old images
-                            docker image prune -f
-EOF
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_SERVER} "cd /home/ubuntu/biolume && docker compose -f compose.prod.yml pull --policy always && docker compose -f compose.prod.yml up -d && docker image prune -f"
                     '''
                 }
             }
