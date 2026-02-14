@@ -3,15 +3,19 @@ pipeline {
     
     environment {
         COMPOSE_PROJECT_NAME = 'biolume'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKER_HUB_USERNAME = 'tharukadissanayaka'
+        FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/biolume-frontend"
+        BACKEND_IMAGE = "${DOCKER_HUB_USERNAME}/biolume-backend"
+        REMOTE_SERVER = '98.93.42.249'
+        REMOTE_USER = 'ubuntu'
     }
     
     stages {
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
-                sh '''
-                    git clone https://github.com/tharukadissanayaka/BioLume_HealthApplication.git . || git pull origin main
-                '''
+                checkout scm
             }
         }
         
@@ -19,41 +23,23 @@ pipeline {
             steps {
                 echo 'Checking environment...'
                 sh '''
-                    echo "Checking Docker in WSL..."
+                    echo "Checking Docker..."
                     docker --version
                     docker compose version
                     docker info > /dev/null || (echo "Docker daemon not reachable"; exit 1)
-                    uname -a
                 '''
             }
         }
         
-        stage('Stop Existing Containers') {
-            steps {
-                echo 'Stopping any existing containers...'
-                sh '''
-                    docker compose down || exit 0
-                    # Also remove any stray containers from previous runs
-                    docker ps -a --filter "name=biolume" --format="{{.ID}}" | xargs -r docker rm -f || exit 0
-                    docker ps -a --filter "name=devops" --format="{{.ID}}" | xargs -r docker rm -f || exit 0
-                '''
-            }
-        }
-        
-        stage('Clean Old Images') {
-            steps {
-                echo 'Cleaning old images...'
-                sh '''
-                    docker system prune -f || exit 0
-                '''
-            }
-        }
-        
-        stage('Build Images') {
+        stage('Build Docker Images') {
             steps {
                 echo 'Building Docker images...'
                 sh '''
-                    docker compose build --no-cache
+                    # Build frontend image
+                    docker build -t ${FRONTEND_IMAGE}:${BUILD_NUMBER} -t ${FRONTEND_IMAGE}:latest ./frontend
+                    
+                    # Build backend image
+                    docker build -t ${BACKEND_IMAGE}:${BUILD_NUMBER} -t ${BACKEND_IMAGE}:latest ./backend
                 '''
             }
         }
@@ -74,12 +60,54 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Push to Docker Hub') {
             steps {
-                echo 'Deploying application...'
+                echo 'Pushing images to Docker Hub...'
                 sh '''
-                    docker compose up -d
+                    # Login to Docker Hub
+                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                    
+                    # Push frontend images
+                    docker push ${FRONTEND_IMAGE}:${BUILD_NUMBER}
+                    docker push ${FRONTEND_IMAGE}:latest
+                    
+                    # Push backend images
+                    docker push ${BACKEND_IMAGE}:${BUILD_NUMBER}
+                    docker push ${BACKEND_IMAGE}:latest
                 '''
+            }
+        }
+        
+        stage('Deploy to Remote Server') {
+            steps {
+                echo 'Deploying to remote server...'
+                sshagent(['aws-server-ssh']) {
+                    sh '''
+                        # Copy docker-compose file to remote server
+                        scp -o StrictHostKeyChecking=no compose.prod.yml ${REMOTE_USER}@${REMOTE_SERVER}:/home/${REMOTE_USER}/biolume/
+                        
+                        # Deploy on remote server
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_SERVER} << 'EOF'
+                            cd /home/ubuntu/biolume
+                            
+                            # Login to Docker Hub
+                            echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                            
+                            # Pull latest images
+                            docker pull ${FRONTEND_IMAGE}:latest
+                            docker pull ${BACKEND_IMAGE}:latest
+                            
+                            # Stop existing containers
+                            docker compose -f compose.prod.yml down || true
+                            
+                            # Start new containers
+                            docker compose -f compose.prod.yml up -d
+                            
+                            # Clean up old images
+                            docker image prune -f
+EOF
+                    '''
+                }
             }
         }
         
@@ -87,23 +115,16 @@ pipeline {
             steps {
                 echo 'Performing health checks...'
                 sh '''
-                    sleep 10
+                    sleep 15
                     
-                    # Check if containers are running
-                    docker compose ps
+                    # Check frontend health
+                    curl -f http://${REMOTE_SERVER}:5173 > /dev/null 2>&1 || echo "Frontend not responding yet"
                     
-                    # Check backend health (local)
-                    curl -f http://localhost:3000 > /dev/null 2>&1 || echo "Backend not responding yet on localhost"
-                    
-                    # Check frontend health (local)
-                    curl -f http://localhost:5173 > /dev/null 2>&1 || echo "Frontend not responding yet on localhost"
-                    
-                    # Check AWS public access
-                    curl -f http://98.93.42.249:5173 > /dev/null 2>&1 || echo "Frontend not accessible on AWS IP yet"
-                    curl -f http://98.93.42.249:3000 > /dev/null 2>&1 || echo "Backend not accessible on AWS IP yet"
+                    # Check backend health
+                    curl -f http://${REMOTE_SERVER}:3000 > /dev/null 2>&1 || echo "Backend not responding yet"
                     
                     echo "Deployment completed!"
-                    echo "Application accessible at: http://98.93.42.249:5173"
+                    echo "Application accessible at: http://${REMOTE_SERVER}:5173"
                 '''
             }
         }
@@ -113,24 +134,17 @@ pipeline {
         success {
             echo 'Pipeline executed successfully!'
             echo 'Application deployed at: http://98.93.42.249:5173'
-            sh 'docker compose ps'
+            echo "Frontend Image: ${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+            echo "Backend Image: ${BACKEND_IMAGE}:${BUILD_NUMBER}"
         }
         failure {
             echo 'Pipeline failed!'
-            sh '''
-                docker compose logs || exit 0
-                docker compose down || exit 0
-            '''
         }
         always {
-            echo 'Cleaning up workspace...'
-            cleanWs(
-                deleteDirs: true,
-                disableDeferredWipeout: true,
-                patterns: [
-                    [pattern: 'node_modules/', type: 'INCLUDE']
-                ]
-            )
+            echo 'Cleaning up...'
+            sh '''
+                docker logout || true
+            '''
         }
     }
 }

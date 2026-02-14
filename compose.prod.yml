@@ -1,0 +1,29 @@
+services:
+  frontend:
+    image: tharukadissanayaka/biolume-frontend:latest
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    image: tharukadissanayaka/biolume-backend:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    restart: always
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/biolume
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
