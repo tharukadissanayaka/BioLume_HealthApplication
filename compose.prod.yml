@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: tharukadissanayaka/biolume-frontend:latest
+    image: tharukadissanayake/biolume-frontend:latest
     ports:
       - "5173:5173"
     depends_on:
@@ -8,7 +8,7 @@ services:
     restart: always
 
   backend:
-    image: tharukadissanayaka/biolume-backend:latest
+    image: tharukadissanayake/biolume-backend:latest
     ports:
       - "3000:3000"
     depends_on:

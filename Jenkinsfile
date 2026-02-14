@@ -4,7 +4,7 @@ pipeline {
     environment {
         COMPOSE_PROJECT_NAME = 'biolume'
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_HUB_USERNAME = 'tharukadissanayaka'
+        DOCKER_HUB_USERNAME = 'tharukadissanayake'
         FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/biolume-frontend"
         BACKEND_IMAGE = "${DOCKER_HUB_USERNAME}/biolume-backend"
         REMOTE_SERVER = '98.93.42.249'
