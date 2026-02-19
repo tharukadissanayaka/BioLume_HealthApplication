@@ -8,7 +8,7 @@ const Dashboard = () => {
       <div className="dashboard-grid-top">
         <div className="health-score-section">
           <div className="health-score-card">
-            <p className="score-label">Your Health Score</p>
+            <p className="score-label">Score</p>
             <h2 className="score-value">{healthScoreData.today}</h2>
             <p className="score-change">
               {healthScoreData.today > healthScoreData.yesterday ? '↑' : '↓'}{' '}
