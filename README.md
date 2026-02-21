@@ -17,9 +17,13 @@ Responsive Design      : Modern UI built with React and Vite
 🛠️ Tech Stack
 --------------
 Frontend      : React 19, Vite, React Router, Recharts, Axios
+
 Backend       : Node.js, Express.js, MongoDB/Mongoose
+
 Infrastructure: Docker, Docker Compose, Terraform
+
 CI/CD         : Jenkins pipeline for automated deployment
+
 Graphics      : Lucide React icons and React Icons
 
 📦 Deployment
