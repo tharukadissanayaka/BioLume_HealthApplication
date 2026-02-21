@@ -7,7 +7,7 @@ const Home = () => {
     <div className="home-container">
       <nav className="navbar">
         <div className="navbar-brand">
-          <Link to="/">Tharuka</Link>
+          <Link to="/">BioLume</Link>
         </div>
         <div className="navbar-links">
           <Link to="/signin">Sign In</Link>
