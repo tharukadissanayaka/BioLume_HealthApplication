@@ -5,9 +5,13 @@ BioLume is a full-stack health and wellness tracking application that empowers u
 ✨ Features
 --------------
 User Authentication    : Secure sign-up and sign-in with bcrypt encryption
+
 Health Metrics Tracking: Monitor activity, hydration intake, and sleep duration
+
 Interactive Dashboard  : Visual representation of health data with charts and analytics
+
 User Settings          : Personalized preferences and profile management
+
 Responsive Design      : Modern UI built with React and Vite
 
 🛠️ Tech Stack
